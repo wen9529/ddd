@@ -1,0 +1,115 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.game-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 900px;
+}
+
+.player-area {
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.hand-display, .card-set {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100px;
+    margin-top: 10px;
+    padding: 5px;
+    background-color: #e9e9e9;
+    border-radius: 4px;
+}
+
+.card {
+    width: 70px;
+    height: 100px;
+    background-size: cover;
+    margin: 5px;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.sets-display {
+    margin-top: 15px;
+}
+
+.set-container {
+    margin-bottom: 10px;
+}
+
+.set-container strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.controls button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+.controls button:hover {
+    background-color: #45a049;
+}
+
+.message-area {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    min-height: 40px;
+    border-radius: 4px;
+}
+
+.card.selected {
+    border: 3px solid gold;
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 0 10px gold;
+}
+
+.card-set {
+    border: 2px dashed #ccc;
+    min-height: 110px;
+    padding: 5px;
+}
+
+#ai-area {
+    margin-top: 30px;
+    padding: 15px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+}
+#ai-area .card { 
+    cursor: default;
+}
