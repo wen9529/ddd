@@ -1,4 +1,3 @@
-xf// js/script.js
 import { createDeck, shuffleDeck, dealCards, compareHandTypes, calculateScores } from './gameLogic.js';
 
 const MAX_ROOMS = 5;
