@@ -1,5 +1,5 @@
 // js/script.js
-import { createDeck, shuffleDeck, dealCards } from './gameLogic.js';
+import { createDeck, shuffleDeck, dealCards, getHandType, compareHandTypes, calculateScores } from './gameLogic.js';
 
 const MAX_ROOMS = 5;
 const MAX_PLAYERS_PER_ROOM = 4;
@@ -37,7 +37,7 @@ function registerPlayer() {
     const registrationMessage = document.getElementById('registrationMessage');
 
     if (phoneNumber && password) {
-        currentPlayer = { phoneNumber, password };
+        currentPlayer = { phoneNumber, password, isAI: false };
         registrationMessage.textContent = '注册成功！';
         initRooms();
     } else {
@@ -58,6 +58,7 @@ function joinRoom(roomId) {
         document.getElementById('room-selection').style.display = 'none';
         document.getElementById('game-area').style.display = 'block';
         document.getElementById('player-area').innerHTML = `欢迎 ${currentPlayer.phoneNumber} 到房间 ${currentRoom.id}`;
+        renderPlayerHands(); // 增加渲染玩家手牌
     } else {
         alert('房间已满，请选择其他房间。');
     }
@@ -65,17 +66,39 @@ function joinRoom(roomId) {
 
 // Start Game
 function startGame() {
-    // 发牌给所有玩家（简单处理，仅为当前房间的玩家）
     const deck = createDeck();
     shuffleDeck(deck);
-    const playersHands = currentRoom.players.map(player => dealCards(deck, 13));
-    console.log('发牌结果:', playersHands);
-    alert('游戏开始！');
+
+    currentRoom.players.forEach(player => {
+        player.hand = dealCards(deck, 13);
+        player.sets = { front: [], middle: [], back: [] };
+        player.status = "游戏中";
+    });
+
+    renderPlayerHands();
+    document.getElementById('messageArea').textContent = "游戏开始！";
+}
+
+// Render Player Hands
+function renderPlayerHands() {
+    const playerArea = document.getElementById('player-area');
+    playerArea.innerHTML = '';
+
+    currentRoom.players.forEach(player => {
+        const handDisplay = document.createElement('div');
+        handDisplay.className = 'sets-display';
+        handDisplay.innerHTML = `<div class="card-set" id="${player.phoneNumber}-hand"></div>`;
+        playerArea.appendChild(handDisplay);
+
+        const hand = player.hand.map(card => `<div class="card">${card.rank} of ${card.suit}</div>`).join('');
+        document.getElementById(`${player.phoneNumber}-hand`).innerHTML = hand;
+    });
 }
 
 // AI Trustee
 function aiTrustee() {
-    alert('托管给 AI，AI 将为你摆牌。');
+    currentPlayer.isAI = true; // 标记当前玩家为 AI
+    alert('托管给 AI，AI 将为你自动摆牌。');
 }
 
 // Event Listeners
