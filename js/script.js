@@ -1,5 +1,5 @@
 // js/script.js
-import { createDeck, shuffleDeck, dealCards, getHandType, compareHandTypes, calculateScores } from './gameLogic.js';
+import { createDeck, shuffleDeck, dealCards } from './gameLogic.js';
 
 const MAX_ROOMS = 5;
 const MAX_PLAYERS_PER_ROOM = 4;
@@ -102,10 +102,13 @@ function aiTrustee() {
 }
 
 // Event Listeners
-document.getElementById('registerButton').addEventListener('click', registerPlayer);
-document.getElementById('startGameButton').addEventListener('click', startGame);
-document.getElementById('aiTrusteeButton').addEventListener('click', aiTrustee);
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('registerButton').addEventListener('click', registerPlayer);
+    document.getElementById('startGameButton').addEventListener('click', startGame);
+    document.getElementById('aiTrusteeButton').addEventListener('click', aiTrustee);
 
-// Initialize Rooms on Load
-window.onload = initRooms;
+    // Initialize Rooms on Load
+    initRooms();
+});
+
 window.joinRoom = joinRoom; // Expose joinRoom to global scope
