@@ -1,4 +1,4 @@
-// js/script.js
+xf// js/script.js
 import { createDeck, shuffleDeck, dealCards, compareHandTypes, calculateScores } from './gameLogic.js';
 
 const MAX_ROOMS = 5;
@@ -46,6 +46,8 @@ function registerPlayer() {
     if (phoneNumber && password) {
         currentPlayer = { phoneNumber, password, isAI: false, isReady: false };
         registrationMessage.textContent = '注册成功！';
+        document.getElementById('registration-area').style.display = 'none';
+        document.getElementById('room-selection').style.display = 'block';
     } else {
         registrationMessage.textContent = '请输入手机号和密码！';
     }
@@ -84,6 +86,7 @@ function createRoom() {
     };
     rooms.push(newRoom);
     initRooms(); // 更新房间列表
+    joinRoom(newRoomId); // 将当前玩家加入到新创建的房间
 }
 
 // Join Room - 加入房间
@@ -107,16 +110,21 @@ function joinRoomByNumber() { // 新增函数：通过房间号码加入房间
     }
 }
 function joinRoom(roomId) { // 现有函数：通过房间 ID 加入房间
+    // 查找目标房间
+    currentRoom = rooms.find(room => room.id === roomId);
+
+    if (!currentRoom) {
+        document.getElementById('messageArea').textContent = `房间号 ${roomId} 不存在！`;
+        return;
+    }
     // 添加对 currentPlayer 的检查
     // 确保用户已经注册才能加入房间
     if (!currentPlayer) {
         document.getElementById('messageArea').textContent = '请先注册用户！';
+ initRooms(); // Ensure rooms are displayed if join failed due to no player
         return;
     }
     document.getElementById('messageArea').textContent = ''; // 清空之前的消息
-
-    // 查找目标房间
-    currentRoom = rooms.find(room => room.id === roomId);
 
     if (currentRoom.players.length < MAX_PLAYERS_PER_ROOM) {
         // 将当前玩家添加到房间玩家列表
@@ -125,14 +133,16 @@ function joinRoom(roomId) { // 现有函数：通过房间 ID 加入房间
         document.getElementById('messageArea').textContent = `成功加入房间 ${currentRoom.id}`;
         // 切换到游戏区域
         document.getElementById('room-selection').style.display = 'none';
-        document.getElementById('game-area').style.display = 'block';
+ // document.getElementById('game-area').style.display = 'block'; // Initially hide game area content
         document.getElementById('player-area').innerHTML = `欢迎 ${currentPlayer.phoneNumber} 到房间 ${currentRoom.id}`;
+        document.getElementById('player-area').style.display = 'block'; // 确保玩家区域显示
+
 
         // TODO: 根据游戏阶段显示不同的界面
-        // 在进入房间后隐藏初始游戏区域，准备显示摆牌界面
-        document.getElementById('game-area').style.display = 'none';
+        // 暂时先显示玩家区域和摆牌区域的容器
+        document.getElementById('player-hand-area').style.display = 'none'; // 默认隐藏手牌区域，等待游戏开始
+        document.getElementById('player-sets-area').style.display = 'none'; // 默认隐藏摆牌区域，等待游戏开始
 
-        initRooms(); // 更新房间列表
     } else {
         document.getElementById('messageArea').textContent = '房间已满，请选择其他房间。';
     }
@@ -348,7 +358,7 @@ function aiTrustee() {
 
     document.getElementById('messageArea').textContent = 'AI 正在为你自动摆牌...';
     // 调用 gameLogic.js 中的 aiTrustee 函数进行摆牌
-    const aiSets = aiTrustee(currentPlayer.hand);
+    const aiSets = aiTrustee(currentPlayer.hand); // Note: This is likely a recursive call and should call the actual AI logic from gameLogic.js
 
     // 将 AI 摆牌结果显示在玩家摆牌区域 (这部分需要更复杂的DOM操作来更新界面)
     // 简单的做法是直接存储结果并标记玩家已完成摆牌
@@ -383,7 +393,7 @@ function showAISuggestion() {
 
     // 调用 gameLogic.js 中的逻辑生成建议 (这里可以复用 aiTrustee 或创建一个新的建议函数)
     // 假设 aiTrustee 也能用于生成建议
-    const aiSuggestedSets = aiTrustee(currentPlayer.hand);
+    const aiSuggestedSets = aiTrustee(currentPlayer.hand); // Note: This is likely a recursive call and should call the actual AI logic from gameLogic.js
 
     // 在界面上显示 AI 的建议 (这部分需要更复杂的DOM操作来显示建议的牌型)
     // 可以在 messageArea 或一个新的区域显示
