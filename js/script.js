@@ -53,12 +53,28 @@ function registerPlayer() {
 
 // Create Room - 创建房间
 function createRoom() {
+    const roomNumberInput = document.getElementById('roomNumberInput');
+    const customRoomId = roomNumberInput.value.trim(); // 获取用户输入的房间号码
+
     // 添加对 currentPlayer 的检查
     if (!currentPlayer) {
         document.getElementById('messageArea').textContent = '请先注册用户才能创建房间！';
         return;
     }
-    const newRoomId = rooms.length > 0 ? Math.max(...rooms.map(room => room.id)) + 1 : 1;
+
+    // 检查房间号码是否已输入
+    if (!customRoomId) {
+        document.getElementById('messageArea').textContent = '请输入自定义房间号码！';
+        return;
+    }
+
+    // 检查房间号码是否已被占用
+    if (rooms.find(room => room.id === customRoomId)) {
+        document.getElementById('messageArea').textContent = `房间号 ${customRoomId} 已被占用！`;
+        return;
+    }
+
+    const newRoomId = customRoomId; // 使用自定义房间号码作为 ID
     const newRoom = {
         id: newRoomId,
         players: [],
@@ -71,7 +87,26 @@ function createRoom() {
 }
 
 // Join Room - 加入房间
-function joinRoom(roomId) {
+// 添加通过房间号码加入房间的功能
+function joinRoomByNumber() { // 新增函数：通过房间号码加入房间
+    const roomNumberInput = document.getElementById('joinRoomNumberInput'); // 使用新的输入框 ID
+    const targetRoomId = roomNumberInput.value.trim(); // 获取用户输入的房间号码
+
+    if (!targetRoomId) {
+        document.getElementById('messageArea').textContent = '请输入要加入的房间号码！';
+        return;
+    }
+
+    // 查找目标房间
+    const roomToJoin = rooms.find(room => room.id === targetRoomId);
+
+    if (roomToJoin) {
+        joinRoom(roomToJoin.id); // 调用现有的 joinRoom 函数
+    } else { // 如果房间不存在
+        document.getElementById('messageArea').textContent = `房间号 ${targetRoomId} 不存在！`;
+    }
+}
+function joinRoom(roomId) { // 现有函数：通过房间 ID 加入房间
     // 添加对 currentPlayer 的检查
     // 确保用户已经注册才能加入房间
     if (!currentPlayer) {
@@ -100,6 +135,7 @@ function joinRoom(roomId) {
         initRooms(); // 更新房间列表
     } else {
         document.getElementById('messageArea').textContent = '房间已满，请选择其他房间。';
+    }
     }
 }
 
@@ -410,6 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('aiTrusteeButton').addEventListener('click', aiTrustee);
     document.getElementById('readyButton').addEventListener('click', preparePlayer);
     document.getElementById('createRoomButton').addEventListener('click', createRoom); // 添加创建房间按钮的事件监听器
+    document.getElementById('joinRoomByNumberButton').addEventListener('click', joinRoomByNumber); // 添加通过房间号码加入房间按钮的事件监听器
  document.getElementById('aiSuggestionButton').addEventListener('click', showAISuggestion); // 添加 AI 建议按钮的事件监听器
     // document.getElementById('confirmSetsButton').addEventListener('click', confirmSets); // 添加确认摆牌按钮的事件监听器
 
