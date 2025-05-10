@@ -146,7 +146,6 @@ function joinRoom(roomId) { // 现有函数：通过房间 ID 加入房间
     } else {
         document.getElementById('messageArea').textContent = '房间已满，请选择其他房间。';
     }
-    }
 }
 
 // TODO: 实现离开房间功能
