@@ -9,28 +9,34 @@
 <body>
     <div class="game-container">
         <h1>十三水游戏</h1>
+
+        <!-- 注册区域 -->
         <div id="registration-area">
             <h2>注册用户</h2>
-            <input type="text" id="phoneNumber" placeholder="手机号" />
-            <input type="password" id="password" placeholder="密码" />
+            <input type="text" id="phoneNumber" placeholder="手机号 (例如: 玩家1)" />
+            <input type="password" id="password" placeholder="密码 (任意)" />
             <button id="registerButton">注册</button>
-            <div id="registrationMessage"></div>
+            <div id="registrationMessage" class="message"></div>
         </div>
 
-        <div id="room-selection">
+        <!-- 房间选择区域 -->
+        <div id="room-selection" style="display: none;">
             <h2>选择房间</h2>
-            <div id="rooms"></div>
+            <div id="rooms-list"></div>
         </div>
 
+        <!-- 游戏区域 -->
         <div id="game-area" style="display: none;">
-            <h2>游戏区域</h2>
-            <div id="player-area"></div>
-            <div class="controls">
-                <button id="startGameButton">开始游戏</button>
-                <button id="aiTrusteeButton">托管给 AI</button>
-                <button id="readyButton">准备</button>
+            <h2 id="room-title">游戏房间</h2>
+            <div id="player-display-area">
+                <!-- 玩家状态和手牌将在这里动态生成 -->
             </div>
-            <div class="message-area" id="messageArea"></div>
+            <div class="controls">
+                <button id="readyButton">准备 / 取消准备</button>
+                <button id="aiTrusteeButton">AI托管</button>
+                <button id="leaveRoomButton">离开房间</button>
+            </div>
+            <div id="gameMessage" class="message">请先加入房间并准备开始游戏。</div>
         </div>
     </div>
     <script type="module" src="js/script.js"></script>
