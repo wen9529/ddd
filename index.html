@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>十三水游戏</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>十三水</h1>
+
+        <div class="player-area" id="player1-area">
+            <h2>玩家 1</h2>
+            <div class="hand-display" id="player1-hand"></div>
+            <div class="sets-display">
+                <div class="set-container">
+                    <strong>头道 (3张) - 点击此处放置选中的牌</strong>
+                    <div class="card-set" id="player1-front"></div>
+                </div>
+                <div class="set-container">
+                    <strong>中道 (5张) - 点击此处放置选中的牌</strong>
+                    <div class="card-set" id="player1-middle"></div>
+                </div>
+                <div class="set-container">
+                    <strong>尾道 (5张) - 点击此处放置选中的牌</strong>
+                    <div class="card-set" id="player1-back"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ai-area">
+            <h2>AI 对手</h2>
+            <div class="sets-display">
+                <div class="set-container">
+                    <strong>头道:</strong>
+                    <div class="card-set" id="ai-front"></div>
+                </div>
+                <div class="set-container">
+                    <strong>中道:</strong>
+                    <div class="card-set" id="ai-middle"></div>
+                </div>
+                <div class="set-container">
+                    <strong>尾道:</strong>
+                    <div class="card-set" id="ai-back"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="startGameButton">开始游戏 / 重新发牌</button>
+            <button id="confirmArrangementButton">确认摆牌</button>
+        </div>
+
+        <div class="message-area" id="messageArea"></div>
+    </div>
+
+    <script type="module" src="js/script.js"></script>
+</body>
+</html>
