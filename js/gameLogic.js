@@ -130,12 +130,6 @@ export function getHandType(hand) {
 
     }
 
-    // Count rank occurrences
-    const rankCounts = ranks.reduce((counts, rank) => {
-        counts[rank] = (counts[rank] || 0) + 1;
-        return counts;
-    }, {});
-
     // --- Regular Hand Types (3 or 5 cards) ---
     // Ensure hand length is correct for regular hand types
 
