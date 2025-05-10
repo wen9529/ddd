@@ -7,7 +7,7 @@ export function createDeck() {
 
     for (const suit of SUITS) {
         for (const rank of RANKS) {
-            deck.push({ suit, rank, id: `${rank}_of_${suit}` });
+            deck.push({ suit, rank });
         }
     }
     return deck;
@@ -23,18 +23,4 @@ export function shuffleDeck(deck) {
 
 export function dealCards(deck, numCards) {
     return deck.splice(0, numCards);
-}
-
-export function getHandType(hand) {
-    // Implement evaluation of hand types
-    return "Some Hand Type"; // Placeholder
-}
-
-export function compareHandTypes(type1, type2) {
-    // Implement hand type comparison logic
-    return 0; // 0 if equal, positive if type1 wins, negative if type2 wins
-}
-
-export function calculateScores(players) {
-    // Implement scoring logic for players
 }
