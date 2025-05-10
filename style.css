@@ -1,74 +1,179 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
     padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    color: #333;
 }
 
 .game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-}
-
-#room-selection, #registration-area {
-    margin: 20px;
-    padding: 10px;
-    background-color: #e9ecef;
-    border-radius: 5px;
-}
-
-.room {
-    border: 1px solid #007bff;
-    background-color: #f0f8ff;
-    margin: 5px;
-    padding: 10px;
-    width: 250px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 800px;
     text-align: center;
-    border-radius: 5px;
+}
+
+h1, h2 {
+    color: #2c3e50;
+}
+
+h1 {
+    margin-bottom: 25px;
+}
+
+h2 {
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+#registration-area, #room-selection, #game-area {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+input[type="text"], input[type="password"] {
+    padding: 10px;
+    margin: 5px 0 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: calc(100% - 24px);
+    box-sizing: border-box;
 }
 
 button {
-    padding: 5px 10px;
-    margin-top: 10px;
-    background-color: #007bff;
+    background-color: #3498db;
     color: white;
     border: none;
-    border-radius: 5px;
+    padding: 10px 18px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 5px 3px;
     cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #2980b9;
 }
 
-.message-area {
-    margin-top: 20px;
+button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+#aiTrusteeButton {
+    background-color: #f39c12;
+}
+#aiTrusteeButton:hover {
+    background-color: #e67e22;
+}
+
+#leaveRoomButton {
+    background-color: #e74c3c;
+}
+#leaveRoomButton:hover {
+    background-color: #c0392b;
+}
+
+
+.message {
+    margin-top: 10px;
     font-weight: bold;
-    color: #dc3545;
+    min-height: 20px;
 }
+#registrationMessage.success { color: #27ae60; }
+#registrationMessage.error { color: #c0392b; }
+#gameMessage { color: #2980b9; }
 
-.sets-display {
-    margin-top: 15px;
-    display: flex;
-    gap: 10px;
-}
 
-.card-set {
-    border: 1px solid #343a40;
-    background-color: #e2e3e8;
-    width: 100px;
-    height: 150px;
+#rooms-list {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     justify-content: center;
+    gap: 15px;
+}
+
+.room-card {
+    border: 1px solid #3498db;
+    background-color: #eaf5ff;
+    padding: 15px;
+    width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.room-card h3 {
+    margin-top: 0;
+    color: #2980b9;
+}
+
+#player-display-area {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #d1d1d1;
+    background-color: #fdfdfd;
+    border-radius: 6px;
+    min-height: 100px;
+}
+
+.player-info {
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    padding: 10px;
+    margin-bottom: 8px;
     border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player-info .name {
+    font-weight: bold;
+}
+.player-info .status.ready {
+    color: #2ecc71; /* Green */
+    font-weight: bold;
+}
+.player-info .status.not-ready {
+    color: #e74c3c; /* Red */
+}
+.player-info .status.ai {
+    color: #f39c12; /* Orange */
+    font-style: italic;
+}
+
+
+.hand-display {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    padding: 5px;
+    background-color: #e8f6e8;
+    border-radius: 4px;
 }
 
 .card {
-    margin: 1px;
+    background-color: white;
+    border: 1px solid #95a5a6;
+    border-radius: 4px;
+    padding: 8px 5px;
+    font-size: 12px;
+    min-width: 40px; /* Adjust as needed */
     text-align: center;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
 }
