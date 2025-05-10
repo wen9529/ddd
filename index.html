@@ -12,19 +12,21 @@
 
         <div class="player-area" id="player1-area">
             <h2>玩家 1</h2>
-            <div class="hand-display" id="player1-hand"></div>
+            <div class="hand-display" id="player1-hand">
+                <!-- 牌将显示在这里 -->
+            </div>
             <div class="sets-display">
                 <div class="set-container">
-                    <strong>头道 (3张) - 点击此处放置选中的牌</strong>
-                    <div class="card-set" id="player1-front"></div>
+                    <strong>头道 (3张) - 点击此处放置</strong>
+                    <div class="card-set" id="player1-front" data-setname="front"></div>
                 </div>
                 <div class="set-container">
-                    <strong>中道 (5张) - 点击此处放置选中的牌</strong>
-                    <div class="card-set" id="player1-middle"></div>
+                    <strong>中道 (5张) - 点击此处放置</strong>
+                    <div class="card-set" id="player1-middle" data-setname="middle"></div>
                 </div>
                 <div class="set-container">
-                    <strong>尾道 (5张) - 点击此处放置选中的牌</strong>
-                    <div class="card-set" id="player1-back"></div>
+                    <strong>尾道 (5张) - 点击此处放置</strong>
+                    <div class="card-set" id="player1-back" data-setname="back"></div>
                 </div>
             </div>
         </div>
@@ -48,11 +50,13 @@
         </div>
 
         <div class="controls">
-            <button id="startGameButton">开始游戏 / 重新发牌</button>
-            <button id="confirmArrangementButton">确认摆牌</button>
+            <button id="startGameButton">开始游戏</button>
+            <button id="confirmArrangementButton" style="display: none;">确认摆牌</button>
         </div>
 
-        <div class="message-area" id="messageArea"></div>
+        <div class="message-area" id="messageArea">
+            欢迎来到十三水游戏！点击“开始游戏”按钮发牌。
+        </div>
     </div>
 
     <script type="module" src="js/script.js"></script>
