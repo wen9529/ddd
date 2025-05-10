@@ -18,6 +18,13 @@ const startGameButton = document.getElementById('startGameButton');
 const confirmArrangementButton = document.getElementById('confirmArrangementButton');
 const messageArea = document.getElementById('messageArea');
 
+// DEBUG: Log an DOM element to check if they are correctly fetched
+console.log("DOM Element Check: aiFrontDiv is", aiFrontDiv);
+console.log("DOM Element Check: aiMiddleDiv is", aiMiddleDiv);
+console.log("DOM Element Check: aiBackDiv is", aiBackDiv);
+console.log("DOM Element Check: player1HandDiv is", player1HandDiv);
+
+
 // --- Game State ---
 let fullDeck = [];
 let player1Hand = []; // 存放玩家当前手牌数据
@@ -34,14 +41,14 @@ function createCardElement(card, isInteractive = true) {
     const cardDiv = document.createElement('div');
     cardDiv.classList.add('card');
     let imageName;
-    if (card.rank === 'back') { // 用于显示牌背
+    if (card.rank === 'back') {
         imageName = `back${IMAGE_EXT}`;
     } else {
         imageName = `${card.rank}_of_${card.suit}${IMAGE_EXT}`;
     }
     cardDiv.style.backgroundImage = `url(${IMAGE_PATH}${imageName})`;
-    cardDiv.dataset.cardId = card.id; // 存储牌的ID，方便后续操作
-    cardDiv.cardData = card; // 将牌数据直接关联到DOM元素
+    cardDiv.dataset.cardId = card.id;
+    cardDiv.cardData = card;
 
     if (isInteractive && card.rank !== 'back') {
         cardDiv.addEventListener('click', () => handleCardClick(cardDiv));
@@ -50,9 +57,12 @@ function createCardElement(card, isInteractive = true) {
 }
 
 function renderPlayerHand() {
+    if (!player1HandDiv) {
+        console.error("Error: player1HandDiv is not found!");
+        return;
+    }
     player1HandDiv.innerHTML = '';
-    // 手牌排序显示，方便玩家选择
-    const sortedHandForDisplay = sortCards(player1Hand, false).reverse(); // 按点数从大到小，方便看
+    const sortedHandForDisplay = sortCards(player1Hand, false).reverse();
     sortedHandForDisplay.forEach(card => {
         player1HandDiv.appendChild(createCardElement(card));
     });
@@ -61,42 +71,58 @@ function renderPlayerHand() {
 function renderPlayerSets() {
     const setDivs = { front: player1FrontDiv, middle: player1MiddleDiv, back: player1BackDiv };
     for (const setName in player1Sets) {
-        setDivs[setName].innerHTML = '';
-        // 牌墩内也排序显示
-        const sortedSetForDisplay = sortCards(player1Sets[setName]).reverse();
-        sortedSetForDisplay.forEach(card => {
-            // 牌墩中的牌也可以点击移回手牌区
-            setDivs[setName].appendChild(createCardElement(card));
-        });
+        if (setDivs[setName]) {
+            setDivs[setName].innerHTML = '';
+            const sortedSetForDisplay = sortCards(player1Sets[setName]).reverse();
+            sortedSetForDisplay.forEach(card => {
+                setDivs[setName].appendChild(createCardElement(card));
+            });
+        } else {
+            console.error(`Error: Player set div for '${setName}' is not found!`);
+        }
     }
     updateConfirmButtonState();
 }
 
 function renderAISets(showCards = false) {
     const setDivs = { front: aiFrontDiv, middle: aiMiddleDiv, back: aiBackDiv };
-    for (const setName in aiCurrentSets) {
-        setDivs[setName].innerHTML = '';
-        if (showCards && aiCurrentSets[setName].length > 0) {
-             const sortedSetForDisplay = sortCards(aiCurrentSets[setName]).reverse();
-            sortedSetForDisplay.forEach(card => {
-                setDivs[setName].appendChild(createCardElement(card, false)); // AI的牌不可交互
-            });
-        } else if (aiCurrentSets[setName] && aiCurrentSets[setName].length > 0) { // 摆牌阶段显示牌背
-            for (let i = 0; i < aiCurrentSets[setName].length; i++) {
-                setDivs[setName].appendChild(createCardElement({ rank: 'back', suit: '', id: `back-${i}` }, false));
+    // console.log("Inside renderAISets. setDivs:", setDivs, "aiCurrentSets:", JSON.parse(JSON.stringify(aiCurrentSets))); // Deep copy for logging
+
+    for (const setName in aiCurrentSets) { // aiCurrentSets should be an object like {front: [], middle: [], back: []}
+        const targetDiv = setDivs[setName];
+        // console.log(`Processing AI set '${setName}'. Target DIV:`, targetDiv);
+
+        if (targetDiv) { // <<<< KEY MODIFICATION: Check if the div exists
+            targetDiv.innerHTML = ''; // This was the line causing error if targetDiv is null
+            if (aiCurrentSets[setName] && aiCurrentSets[setName].length > 0) {
+                if (showCards) {
+                    const sortedSetForDisplay = sortCards(aiCurrentSets[setName]).reverse();
+                    sortedSetForDisplay.forEach(card => {
+                        targetDiv.appendChild(createCardElement(card, false));
+                    });
+                } else { // Show card backs during arrangement phase
+                    for (let i = 0; i < aiCurrentSets[setName].length; i++) {
+                        targetDiv.appendChild(createCardElement({ rank: 'back', suit: '', id: `back-${setName}-${i}` }, false));
+                    }
+                }
             }
+        } else {
+            console.error(`Error: AI set div for '${setName}' is undefined or null. Check HTML ID or JS variable.`);
         }
     }
 }
 
+
 // --- Player Interaction Logic ---
 function handleCardClick(cardElement) {
-    if (gamePhase !== 'arranging') return;
+    if (gamePhase !== 'arranging' || !cardElement || !cardElement.cardData) return;
 
     const cardData = cardElement.cardData;
     const parentElement = cardElement.parentElement;
 
-    if (parentElement.classList.contains('hand-display')) { // 点击手牌区的牌
+    if (!parentElement) return;
+
+    if (parentElement.classList.contains('hand-display')) {
         if (cardElement.classList.contains('selected')) {
             cardElement.classList.remove('selected');
             selectedCardsFromHand = selectedCardsFromHand.filter(item => item.data.id !== cardData.id);
@@ -104,40 +130,53 @@ function handleCardClick(cardElement) {
             cardElement.classList.add('selected');
             selectedCardsFromHand.push({ element: cardElement, data: cardData });
         }
-    } else if (parentElement.classList.contains('card-set')) { // 点击牌墩中的牌，移回手牌
+    } else if (parentElement.classList.contains('card-set')) {
         const setName = parentElement.dataset.setname;
-        if (!setName) return;
+        if (!setName || !player1Sets[setName]) return;
 
-        // 从牌墩数据中移除
         player1Sets[setName] = player1Sets[setName].filter(c => c.id !== cardData.id);
-        // 添加回手牌数据
         player1Hand.push(cardData);
 
-        // 从选中的牌中移除（如果它之前被选中了）
         clearHandSelections();
-        // 重新渲染
         renderPlayerHand();
         renderPlayerSets();
     }
 }
 
 function handleSetClick(setName) {
-    if (gamePhase !== 'arranging' || selectedCardsFromHand.length === 0) return;
+    if (gamePhase !== 'arranging' || selectedCardsFromHand.length === 0 || !player1Sets[setName]) {
+         if (gamePhase === 'arranging' && selectedCardsFromHand.length > 0 && !player1Sets[setName]) {
+            console.error(`Player set '${setName}' does not exist in player1Sets object.`);
+        }
+        return;
+    }
 
     const targetSetArray = player1Sets[setName];
     const maxCards = (setName === 'front') ? 3 : 5;
+    let cardsMovedCount = 0; // To keep track of how many cards are actually moved in this operation
 
-    let cardsToMoveCount = 0;
+    const cardsToKeepInHand = [];
+    const cardsToMoveToSet = [];
+
+    // First, separate cards to move vs keep (to avoid modifying player1Hand while iterating)
     for (const item of selectedCardsFromHand) {
-        if (targetSetArray.length + cardsToMoveCount < maxCards) {
-            targetSetArray.push(item.data);
-            player1Hand = player1Hand.filter(card => card.id !== item.data.id);
-            cardsToMoveCount++;
+        if (targetSetArray.length + cardsMovedCount < maxCards) {
+            cardsToMoveToSet.push(item.data);
+            cardsMovedCount++;
         } else {
             messageArea.textContent = `${setName === 'front' ? '头' : setName === 'middle' ? '中' : '尾'}道最多只能放 ${maxCards} 张牌！`;
-            break; // 不再移动更多牌到这个墩
+            cardsToKeepInHand.push(item.data); // This card stays in hand
         }
     }
+
+    // Add selected cards to the target set
+    cardsToMoveToSet.forEach(cardData => {
+        targetSetArray.push(cardData);
+    });
+
+    // Remove moved cards from player's hand
+    const movedCardIds = new Set(cardsToMoveToSet.map(c => c.id));
+    player1Hand = player1Hand.filter(card => !movedCardIds.has(card.id));
 
     clearHandSelections();
     renderPlayerHand();
@@ -145,12 +184,18 @@ function handleSetClick(setName) {
 }
 
 function clearHandSelections() {
-    player1HandDiv.querySelectorAll('.card.selected').forEach(el => el.classList.remove('selected'));
+    if (player1HandDiv) {
+        player1HandDiv.querySelectorAll('.card.selected').forEach(el => el.classList.remove('selected'));
+    }
     selectedCardsFromHand = [];
 }
 
 function updateConfirmButtonState() {
-    const totalSetCards = player1Sets.front.length + player1Sets.middle.length + player1Sets.back.length;
+    if (!confirmArrangementButton) {
+        console.error("Error: confirmArrangementButton not found!");
+        return;
+    }
+    const totalSetCards = (player1Sets.front?.length || 0) + (player1Sets.middle?.length || 0) + (player1Sets.back?.length || 0);
     if (totalSetCards === 13 && gamePhase === 'arranging') {
         confirmArrangementButton.style.display = 'inline-block';
         confirmArrangementButton.disabled = false;
@@ -162,12 +207,15 @@ function updateConfirmButtonState() {
 
 // --- Game Flow ---
 function startGame() {
+    if (!messageArea || !startGameButton || !confirmArrangementButton) {
+        console.error("Crucial UI elements missing, cannot start game.");
+        return;
+    }
     gamePhase = 'dealing';
     messageArea.textContent = "正在发牌...";
     startGameButton.textContent = "重新开始";
     confirmArrangementButton.style.display = 'none';
     confirmArrangementButton.disabled = true;
-
 
     fullDeck = createDeck();
     fullDeck = shuffleDeck(fullDeck);
@@ -175,41 +223,35 @@ function startGame() {
     player1Hand = dealCards(fullDeck, 13);
     aiHand = dealCards(fullDeck, 13);
 
-    // 重置玩家牌墩数据和显示
     player1Sets = { front: [], middle: [], back: [] };
     clearHandSelections();
     renderPlayerHand();
     renderPlayerSets();
 
-    // AI摆牌 (内部逻辑，暂时不显示其过程)
-    aiCurrentSets = aiArrangeCards(aiHand); // AI直接摆好
-    renderAISets(false); // AI摆牌阶段显示牌背
+    aiCurrentSets = aiArrangeCards(aiHand); // AI arranges cards
+    // console.log("AI arranged sets in startGame:", JSON.parse(JSON.stringify(aiCurrentSets)));
+    renderAISets(false); // Render AI sets (initially with backs)
 
-    // 检查13张特殊牌型
     const playerSpecialHand = checkSpecial13CardHands(player1Hand);
     if (playerSpecialHand) {
-        messageArea.innerHTML = `玩家拿到特殊牌型: <strong>${playerSpecialHand.typeName}</strong>! <br>本局直接按特殊牌型计分 (计分逻辑待细化)。`;
-        // TODO: 实现特殊13张牌型的直接计分和结束
-        // renderAISets(true); // 显示AI的牌
-        // gamePhase = 'ended';
-        // return;
+        messageArea.innerHTML = `玩家拿到特殊牌型: <strong>${playerSpecialHand.typeName}</strong>! <br>本局按特殊牌型计分。`;
+        // Consider ending game or specific scoring here
     }
     const aiSpecialHand = checkSpecial13CardHands(aiHand);
-     if (aiSpecialHand) {
+    if (aiSpecialHand) {
         messageArea.innerHTML += `<br>AI拿到特殊牌型: <strong>${aiSpecialHand.typeName}</strong>!`;
-        // renderAISets(true);
-        // gamePhase = 'ended';
-        // return;
+        // Consider ending game or specific scoring here
     }
 
-
-    messageArea.textContent = "请摆牌。点击手牌选择，再点击目标牌墩（头/中/尾）放置。";
+    if (!playerSpecialHand && !aiSpecialHand) {
+        messageArea.textContent = "请摆牌。点击手牌选择，再点击目标牌墩（头/中/尾）放置。";
+    }
     gamePhase = 'arranging';
-    updateConfirmButtonState(); // 初始时不应该显示确认按钮，除非是特殊情况
+    updateConfirmButtonState();
 }
 
 function confirmArrangement() {
-    if (gamePhase !== 'arranging') return;
+    if (gamePhase !== 'arranging' || !messageArea || !confirmArrangementButton) return;
 
     const validationMessage = validateArrangement(player1Sets);
     if (validationMessage !== true) {
@@ -221,7 +263,6 @@ function confirmArrangement() {
     confirmArrangementButton.disabled = true;
     messageArea.innerHTML = "正在比牌和计分...<br>";
 
-    // 玩家牌型数据
     const playerSetsData = {
         front: [...player1Sets.front],
         middle: [...player1Sets.middle],
@@ -233,14 +274,10 @@ function confirmArrangement() {
         }
     };
 
-    // AI牌型数据已在aiArrangeCards中生成
-    // aiCurrentSets 已经包含了 types
+    renderAISets(true); // Show AI's actual cards
 
-    renderAISets(true); // 摊牌，显示AI的真实牌面
+    const scoreResults = calculateScores(playerSetsData, aiCurrentSets); // aiCurrentSets already has types
 
-    const scoreResults = calculateScores(playerSetsData, aiCurrentSets);
-
-    // 显示牌型信息
     messageArea.innerHTML += `
         玩家: 头-${playerSetsData.types.front.typeName}, 中-${playerSetsData.types.middle.typeName}, 尾-${playerSetsData.types.back.typeName}<br>
         AI: 头-${aiCurrentSets.types.front.typeName}, 中-${aiCurrentSets.types.middle.typeName}, 尾-${aiCurrentSets.types.back.typeName}<hr>
@@ -248,17 +285,29 @@ function confirmArrangement() {
     scoreResults.messages.forEach(msg => messageArea.innerHTML += `${msg}<br>`);
 
     gamePhase = 'ended';
-    startGameButton.textContent = "开始新一局";
+    if (startGameButton) startGameButton.textContent = "开始新一局";
 }
 
 
 // --- Event Listeners ---
-startGameButton.addEventListener('click', startGame);
-confirmArrangementButton.addEventListener('click', confirmArrangement);
+if (startGameButton) startGameButton.addEventListener('click', startGame);
+if (confirmArrangementButton) confirmArrangementButton.addEventListener('click', confirmArrangement);
 
-player1FrontDiv.addEventListener('click', () => handleSetClick('front'));
-player1MiddleDiv.addEventListener('click', () => handleSetClick('middle'));
-player1BackDiv.addEventListener('click', () => handleSetClick('back'));
+if (player1FrontDiv) player1FrontDiv.addEventListener('click', () => handleSetClick('front'));
+if (player1MiddleDiv) player1MiddleDiv.addEventListener('click', () => handleSetClick('middle'));
+if (player1BackDiv) player1BackDiv.addEventListener('click', () => handleSetClick('back'));
 
 // --- Initial Setup ---
-// (Optional: Add any initial welcome message or setup if needed)
+document.addEventListener('DOMContentLoaded', () => {
+    // It's good practice to ensure DOM is fully loaded, though modules defer by default.
+    // You can add any game initialization logic here if needed,
+    // but startGameButton click is the main entry point now.
+    if (!player1HandDiv || !player1FrontDiv || !player1MiddleDiv || !player1BackDiv ||
+        !aiFrontDiv || !aiMiddleDiv || !aiBackDiv ||
+        !startGameButton || !confirmArrangementButton || !messageArea) {
+        console.error("One or more critical DOM elements are missing. Check HTML IDs and script.js element fetching.");
+        if (messageArea) messageArea.textContent = "错误：游戏界面元素加载失败，请检查控制台！";
+    } else {
+        console.log("All critical DOM elements seem to be loaded.");
+    }
+});
