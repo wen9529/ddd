@@ -40,9 +40,10 @@ export function compareHandTypes(type1, type2) {
 
 // 计分逻辑
 export function calculateScores(players) {
+    // Implement scoring logic here
     const scores = players.map(player => ({
-        player,
-        score: Math.floor(Math.random() * 10) // 随机生成分数示例，以后可以替换为具体逻辑
+        player: player.phoneNumber,
+        score: Math.floor(Math.random() * 10), // 随机生成分数示例
     }));
     return scores;
 }
